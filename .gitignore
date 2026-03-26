@@ -1,0 +1,9 @@
+# Ignorar datos pesados e imágenes crudas
+data/
+*.zip
+*.tar.gz
+
+# Ignorar caché de Python y Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
