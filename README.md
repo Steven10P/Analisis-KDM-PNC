@@ -3,11 +3,13 @@ Análisis Comparativo del Desempeño entre Kernel Density Matrix y Probabilistic
 
 
 Objetivos General:
+
 Evaluar el desempeño del algoritmo Kernel Density Matrix (KDM) en comparación con
 los Probabilistic Neural Circuits (PNCs) para el modelado probabilístico de datos
 complejos.
 
 Objetivos específicos:
+
 • Identificar problemas y conjuntos de datos representativos que permitan una
 comparación adecuada entre ambos modelos.
 
