@@ -8,7 +8,7 @@ Este repositorio contiene el framework experimental reproducible para la investi
 - SVHN
 - GTSRB
 
-## 🏗️ Estructura del Framework (MLOps)
+##  Estructura del Framework (MLOps)
 - `configs/`: Hiperparámetros y configuraciones jerárquicas en YAML.
 - `src/`: Código fuente modular (Pipeline de datos, Modelos, Entrenamiento).
 - `notebooks/`: Análisis Exploratorio (EDA) y conclusiones finales.
