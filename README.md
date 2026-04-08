@@ -1,13 +1,15 @@
-# Análisis Comparativo: PNC vs KDM
-Repositorio oficial de la Tesis de Maestría.
+# Análisis Comparativo: KDM vs PNC
 
-## Datasets Evaluados
-1. MNIST
-2. Fashion-MNIST
-3. SVHN (Street View House Numbers)
-4. GTSRB (German Traffic Sign Recognition Benchmark)
+Este repositorio contiene el framework experimental reproducible para la investigación y comparación de **Kernel Density Models (KDM)** y **Probabilistic Neural Circuits (PNC)**.
 
-## Estructura
-* `notebooks/`: Scripts de entrenamiento y evaluación.
-* `resultados/`: Métricas (CSVs), pesos de modelos guardados y gráficas exportadas.
-* `data/`: (Ignorada en Git) Carpeta de descarga de PyTorch.
+##  Datasets Evaluados
+- MNIST
+- Fashion MNIST
+- SVHN
+- GTSRB
+
+## 🏗️ Estructura del Framework (MLOps)
+- `configs/`: Hiperparámetros y configuraciones jerárquicas en YAML.
+- `src/`: Código fuente modular (Pipeline de datos, Modelos, Entrenamiento).
+- `notebooks/`: Análisis Exploratorio (EDA) y conclusiones finales.
+- `resultados/`: Almacenamiento automatizado de modelos entrenados, métricas y gráficas.
