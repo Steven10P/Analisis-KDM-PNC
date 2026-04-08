@@ -1,3 +1,0 @@
-# Configuración para PNC sobre SVHN
-dataset: 'svhn'
-model: 'pnc'

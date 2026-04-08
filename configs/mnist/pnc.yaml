@@ -1,3 +1,0 @@
-# Configuración para PNC sobre MNIST
-dataset: 'mnist'
-model: 'pnc'

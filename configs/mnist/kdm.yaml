@@ -1,3 +1,0 @@
-# Configuración para KDM sobre MNIST
-dataset: 'mnist'
-model: 'kdm'
