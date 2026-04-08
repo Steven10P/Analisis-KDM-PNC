@@ -1,0 +1,3 @@
+# Configuración para KDM sobre GTSRB
+dataset: 'gtsrb'
+model: 'kdm'

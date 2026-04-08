@@ -1,0 +1,3 @@
+# Configuración para PNC sobre FASHION_MNIST
+dataset: 'fashion_mnist'
+model: 'pnc'
