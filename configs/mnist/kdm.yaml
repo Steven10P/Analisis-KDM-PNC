@@ -1,3 +1,9 @@
-# Configuración para KDM sobre MNIST
 dataset: 'mnist'
-model: 'kdm'
+arquitectura:
+  input_dim: 784
+  n_classes: 10
+  units_dense: 128
+entrenamiento:
+  batch_size: 64
+  epochs: 10
+  learning_rate: 0.001

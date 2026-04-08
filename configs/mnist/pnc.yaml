@@ -1,3 +1,11 @@
-# Configuración para PNC sobre MNIST
 dataset: 'mnist'
-model: 'pnc'
+arquitectura:
+  height: 28
+  width: 28
+  n_classes: 10
+  components: 10
+entrenamiento:
+  batch_size: 64
+  epochs: 10
+  lr: 0.01
+  momentum: 0.9
