@@ -1,9 +1,17 @@
-dataset: 'mnist'
-arquitectura:
-  input_dim: 784
-  n_classes: 10
-  units_dense: 128
-entrenamiento:
+proyecto: "MNIST_Classification"
+modelo: "KDM"
+
+# Hiperparámetros fijos (los que usarás después de encontrar los mejores)
+hiperparametros_optimos:
   batch_size: 64
   epochs: 10
   learning_rate: 0.001
+  units_dense: 128
+
+# Rangos para el GridSearch / K-Folds
+grid_search:
+  param_grid:
+    units_dense: [64, 128, 256]
+    learning_rate: [0.01, 0.001, 0.0001]
+    batch_size: [32, 64]
+  cv_folds: 5
