@@ -1,18 +1,15 @@
-modelo: 'PNC'
-dataset: 'mnist'
+# Archivo: config/pnc.yaml
 
-arquitectura:
+# Parámetros fijos de la arquitectura y el dataset
+fixed_params:
   height: 28
   width: 28
   n_classes: 10
   mixing: 'sum'
+  batch_size: 128
 
+# Cuadrícula de búsqueda (Grid Search)
 grid_search:
-  param_grid:
-    components: [5, 10, 15]
-    lr: [0.01, 0.005]
-    momentum: [0.9]
-  cv_folds: 5
-
-entrenamiento_final:
-  epochs: 20
+  components: [5, 10, 15]
+  lr: [0.01, 0.005]
+  momentum: [0.9, 0.5]
