@@ -1,11 +1,18 @@
+modelo: 'PNC'
 dataset: 'mnist'
+
 arquitectura:
   height: 28
   width: 28
   n_classes: 10
-  components: 10
-entrenamiento:
-  batch_size: 64
-  epochs: 10
-  lr: 0.01
-  momentum: 0.9
+  mixing: 'sum'
+
+grid_search:
+  param_grid:
+    components: [5, 10, 15]
+    lr: [0.01, 0.005]
+    momentum: [0.9]
+  cv_folds: 5
+
+entrenamiento_final:
+  epochs: 20
