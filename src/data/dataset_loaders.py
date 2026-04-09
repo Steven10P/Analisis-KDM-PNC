@@ -5,7 +5,10 @@ from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import KFold
 import numpy as np
 
-
+import os
+import urllib.request
+import scipy.io as sio
+from tensorflow.keras.utils import to_categorical
 
 class KDMDataPipelineMNISTKFold:
     def __init__(self, data_dir='./data', k_folds=5, random_state=42):
@@ -135,3 +138,63 @@ class FashionKDMDataPipelineKFold:
 
     def get_test_loader(self):
         return DataLoader(self.test_set_full, batch_size=self.batch_size, shuffle=False)
+
+
+
+# ==========================================
+# MÓDULO MLOPS: dataset_loader.py (Adaptación SVHN)
+# ==========================================
+
+
+
+class SVHNDatasetLoader:
+    """
+    Clase para la gestión integral del dataset SVHN.
+    Asegura la descarga, preprocesamiento y formateo tensorial
+    para arquitecturas Kernel Density Matrix (KDM).
+    """
+    def __init__(self, data_dir="./data/svhn", flatten_input=True):
+        self.data_dir = data_dir
+        self.flatten_input = flatten_input
+        self.urls = {
+            "train": "http://ufldl.stanford.edu/housenumbers/train_32x32.mat",
+            "test": "http://ufldl.stanford.edu/housenumbers/test_32x32.mat"
+        }
+
+    def _verificar_y_descargar(self):
+        """Método privado para asegurar la disponibilidad de los datos en local."""
+        os.makedirs(self.data_dir, exist_ok=True)
+        for split, url in self.urls.items():
+            filepath = os.path.join(self.data_dir, f"{split}_32x32.mat")
+            if not os.path.exists(filepath):
+                print(f"[⬇️] Descargando partición {split} de SVHN...")
+                urllib.request.urlretrieve(url, filepath)
+
+    def load_data(self):
+        """
+        Carga y transforma los tensores.
+        Retorna: X_train, y_train, X_test, y_test
+        """
+        self._verificar_y_descargar()
+        print("[⚙️] Procesando y transponiendo tensores SVHN...")
+        
+        train_data = sio.loadmat(os.path.join(self.data_dir, "train_32x32.mat"))
+        test_data = sio.loadmat(os.path.join(self.data_dir, "test_32x32.mat"))
+
+        # El formato original de Stanford es (alto, ancho, canales, num_muestras)
+        # Transponemos a (N, 32, 32, 3) estándar en MLOps con TensorFlow/Keras
+        X_train = np.transpose(train_data['X'], (3, 0, 1, 2)).astype('float32') / 255.0
+        X_test = np.transpose(test_data['X'], (3, 0, 1, 2)).astype('float32') / 255.0
+
+        # Mapeo de etiquetas: el dígito '0' viene etiquetado como '10'
+        y_train = train_data['y'].flatten()
+        y_train[y_train == 10] = 0
+        y_test = test_data['y'].flatten()
+        y_test[y_test == 10] = 0
+
+        # Aplanamiento de la matriz para KDMs (si no se usan capas convolucionales previas)
+        if self.flatten_input:
+            X_train = X_train.reshape(X_train.shape[0], -1)
+            X_test = X_test.reshape(X_test.shape[0], -1)
+
+        return X_train, to_categorical(y_train, 10), X_test, to_categorical(y_test, 10)
