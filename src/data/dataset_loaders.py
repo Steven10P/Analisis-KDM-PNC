@@ -3,6 +3,9 @@ import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import KFold
+import numpy as np
+
+
 
 class KDMDataPipelineMNISTKFold:
     def __init__(self, data_dir='./data', k_folds=5, random_state=42):
@@ -87,6 +90,48 @@ class FashionPNCDataPipelineKFold:
         train_loader = DataLoader(train_sub, batch_size=self.batch_size, shuffle=True)
         val_loader = DataLoader(val_sub, batch_size=self.batch_size, shuffle=False)
         return train_loader, val_loader
+
+
+class FashionKDMDataPipelineKFold:
+    def __init__(self, data_dir='./data_fashion'):
+        """
+        Pipeline de datos MLOps para KDM en Fashion-MNIST.
+        Prepara los datos aplanados y en formato NumPy.
+        """
+        # Transformación EXCLUSIVA para KDM: Aplanar a 784 y dejar en [0, 1]
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: torch.flatten(x))
+        ])
+
+        self.class_names = [
+            'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+            'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot'
+        ]
+
+        print("Cargando datasets Fashion-MNIST para KDM...")
+        self.train_set_full = datasets.FashionMNIST(data_dir, train=True, download=True, transform=self.transform)
+        self.test_set_full = datasets.FashionMNIST(data_dir, train=False, download=True, transform=self.transform)
+
+    def get_all_numpy_data(self):
+        """
+        Extrae todo el dataset en formato NumPy para usar con Keras y Sklearn (K-Fold).
+        """
+        # Usamos un batch_size grande temporal solo para la extracción rápida a la RAM
+        train_loader = DataLoader(self.train_set_full, batch_size=2000, shuffle=False)
+        test_loader = DataLoader(self.test_set_full, batch_size=2000, shuffle=False)
+
+        def to_numpy(loader):
+            x_list, y_list = [], []
+            for x, y in loader:
+                x_list.append(x.numpy())
+                y_list.append(y.numpy())
+            return np.concatenate(x_list), np.concatenate(y_list)
+
+        x_train, y_train = to_numpy(train_loader)
+        x_test, y_test = to_numpy(test_loader)
+
+        return x_train, y_train, x_test, y_test
 
     def get_test_loader(self):
         return DataLoader(self.test_set_full, batch_size=self.batch_size, shuffle=False)
