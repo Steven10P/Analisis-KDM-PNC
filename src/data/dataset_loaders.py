@@ -1,28 +1,31 @@
+# Archivo: src/data/dataset_loaders.py
 import torch
-import torchvision
-import torchvision.transforms as transforms
+from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from keras.datasets import mnist
-import numpy as np
-from .base_pipeline import BaseDataPipeline
+from sklearn.model_selection import KFold
 
-class MNISTPipeline(BaseDataPipeline):
-    def __init__(self, data_dir='./data', batch_size=32):
-        super().__init__(data_dir, batch_size)
-        self.load_data()
-    def load_data(self):
-        (self.X_train_kdm, self.y_train_kdm), (self.X_test_kdm, self.y_test_kdm) = mnist.load_data()
-        transform = transforms.Compose([transforms.ToTensor()])
-        self.train_set_pnc = torchvision.datasets.MNIST(root=self.data_dir, train=True, download=True, transform=transform)
-        self.test_set_pnc = torchvision.datasets.MNIST(root=self.data_dir, train=False, download=True, transform=transform)
-    def get_kdm_data(self):
-        X_train = self.X_train_kdm.reshape(-1, 784).astype('float32') / 255.0
-        X_test = self.X_test_kdm.reshape(-1, 784).astype('float32') / 255.0
-        return X_train, self.y_train_kdm, X_test, self.y_test_kdm
-    def get_pnc_loaders(self):
-        test_loader = DataLoader(self.test_set_pnc, batch_size=self.batch_size, shuffle=False)
-        return self.train_set_pnc, test_loader
+class KDMDataPipelineMNISTKFold:
+    def __init__(self, data_dir='./data', k_folds=5, random_state=42):
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: torch.flatten(x))
+        ])
+        self.data_dir = data_dir
+        self.k_folds = k_folds
+        self.kf = KFold(n_splits=self.k_folds, shuffle=True, random_state=random_state)
 
-def get_pipeline(dataset_name, batch_size=32):
-    if dataset_name.lower() == 'mnist': return MNISTPipeline(batch_size=batch_size)
-    else: raise ValueError(f'Dataset {dataset_name} no implementado.')
+    def load_full_numpy_datasets(self):
+        train_set = datasets.MNIST(self.data_dir, train=True, download=True, transform=self.transform)
+        test_set = datasets.MNIST(self.data_dir, train=False, download=True, transform=self.transform)
+
+        train_loader = DataLoader(train_set, batch_size=len(train_set), shuffle=False)
+        test_loader = DataLoader(test_set, batch_size=len(test_set), shuffle=False)
+
+        x_train, y_train = next(iter(train_loader))
+        x_test, y_test = next(iter(test_loader))
+
+        return x_train.numpy(), y_train.numpy(), x_test.numpy(), y_test.numpy()
+        
+    def get_splits(self, x_train_full):
+        """Retorna el generador de índices para K-Fold"""
+        return self.kf.split(x_train_full)
