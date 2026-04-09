@@ -15,5 +15,6 @@ except ImportError:
 try:
     # Mantendremos la misma lógica cuando implementemos PNC
     from .pnc_factory import build_pnc_model
+    from .pnc_factory_v2 import  build_pnc_mode_v2
 except ImportError:
     pass
