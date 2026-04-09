@@ -1,3 +1,16 @@
-# Configuración para PNC sobre SVHN
-dataset: 'svhn'
-model: 'pnc'
+# Archivo: configs/svhn/pnc.yaml
+
+# Parámetros fijos de la arquitectura y el dataset
+fixed_params:
+  height: 32        # [CAMBIO CRÍTICO] SVHN es 32x32
+  width: 32         # [CAMBIO CRÍTICO] SVHN es 32x32
+  channels: 3       # [NUEVO] SVHN tiene 3 canales (RGB)
+  n_classes: 10     # Dígitos del 0 al 9
+  mixing: 'sum'
+  batch_size: 128
+  optimizer: 'adam'
+
+# Cuadrícula de búsqueda (Grid Search)
+grid_search:
+  components: [5, 10, 20]
+  lr: [0.001, 0.005]
