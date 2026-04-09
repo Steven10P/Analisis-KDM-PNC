@@ -1,0 +1,7 @@
+
+__pycache__/
+*.pyc
+data/
+.ipynb_checkpoints/
+*.weights.h5
+*.h5
