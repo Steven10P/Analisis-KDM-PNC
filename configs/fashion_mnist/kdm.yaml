@@ -1,3 +1,18 @@
-# Configuración para KDM sobre FASHION_MNIST
+modelo: 'KDM'
 dataset: 'fashion_mnist'
-model: 'kdm'
+
+arquitectura:
+  input_dim: 784
+  n_classes: 10
+  sigma_trainable: True
+
+grid_search:
+  param_grid:
+    n_comp: [256, 512]
+    encoded_size: [64, 128]
+    lr: [0.001, 0.0005]
+    sigma: [ 0.5, 1.0] 
+  cv_folds: 3
+
+entrenamiento_final:
+  epochs: 10
