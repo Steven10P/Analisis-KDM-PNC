@@ -1,3 +1,18 @@
-# Configuración para KDM sobre SVHN
-dataset: 'svhn'
-model: 'kdm'
+modelo: 'KDM'
+dataset: 'svhn' # Actualización de la directiva de carga
+
+arquitectura:
+  input_dim: 3072 # [CAMBIO CRÍTICO] 32x32x3 píxeles
+  n_classes: 10
+  sigma_trainable: True
+
+grid_search:
+  param_grid:
+    n_comp: [256, 512] 
+    encoded_size: [128, 256] # [CAMBIO] Aumentado proporcionalmente a la entrada
+    lr: [0.001, 0.0005]
+    sigma: [0.5, 1.0] 
+  cv_folds: 3
+
+entrenamiento_final:
+  epochs: 10
