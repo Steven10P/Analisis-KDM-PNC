@@ -10,6 +10,9 @@ import urllib.request
 import scipy.io as sio
 from tensorflow.keras.utils import to_categorical
 
+
+
+
 class KDMDataPipelineMNISTKFold:
     def __init__(self, data_dir='./data', k_folds=5, random_state=42):
         self.transform = transforms.Compose([
@@ -198,3 +201,42 @@ class SVHNDatasetLoader:
             X_test = X_test.reshape(X_test.shape[0], -1)
 
         return X_train, to_categorical(y_train, 10), X_test, to_categorical(y_test, 10)
+
+
+class SVHNPNCDataPipelineKFold:
+    def __init__(self, batch_size=128, data_dir='./data/svhn'):
+        self.batch_size = batch_size
+        
+        # Mantenemos SOLO ToTensor() para que la transformación a discretos
+        # (data * 255.0).long() siga funcionando en el bucle de entrenamiento
+        self.transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+
+        # Las clases de SVHN son los dígitos del 0 al 9
+        self.class_names = [str(i) for i in range(10)]
+
+        print("Cargando datasets SVHN para PNC...")
+        
+        # [CAMBIO CRÍTICO]: SVHN usa el parámetro 'split' en lugar de 'train'
+        self.train_set_full = datasets.SVHN(
+            root=data_dir, 
+            split='train', 
+            download=True, 
+            transform=self.transform
+        )
+        
+        self.test_set_full = datasets.SVHN(
+            root=data_dir, 
+            split='test', 
+            download=True, 
+            transform=self.transform
+        )
+
+    def get_fold_loaders(self, train_idx, val_idx):
+        train_sub = Subset(self.train_set_full, train_idx)
+        val_sub = Subset(self.train_set_full, val_idx)
+        # Los DataLoaders se encargan de empaquetar en [Batch, Channels, Height, Width]
+        train_loader = DataLoader(train_sub, batch_size=self.batch_size, shuffle=True)
+        val_loader = DataLoader(val_sub, batch_size=self.batch_size, shuffle=False)
+        return train_loader, val_loader
