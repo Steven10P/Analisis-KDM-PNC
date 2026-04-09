@@ -1,0 +1,4 @@
+encoded_size: 128
+lr: 0.001
+n_comp: 256
+sigma: 0.5
