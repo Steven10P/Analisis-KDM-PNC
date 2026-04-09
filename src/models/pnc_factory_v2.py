@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from circuits.pncrc import GenDisPNCRC
 
-def build_pnc_model(config, device):
+def build_pnc_model_v2(config, device):
     """
     Construye e inicializa un Probabilistic Neural Circuit nativo de PyTorch.
     """
