@@ -36,16 +36,29 @@ def build_kdm_model_v2(config, x_train_fold, y_train_fold):
         sigma=config.get('sigma', 0.5), 
         sigma_trainable=True
     )
+# [NUEVO] Detección automática de la función de pérdida
+    if len(y_train_fold.shape) > 1 and y_train_fold.shape[1] > 1:
+        # Si las etiquetas son One-Hot (Rank 2)
+        loss_function = 'categorical_crossentropy'
+        y_train_to_init = y_train_fold
+    else:
+        # Si las etiquetas son enteros (Rank 1)
+        loss_function = 'sparse_categorical_crossentropy'
+        # Necesitamos One-Hot solo para la inicialización interna del KDM
+        y_train_to_init = keras.utils.to_categorical(y_train_fold, num_classes=num_classes)
 
+    # ... (instanciación del modelo_kdm igual que antes) ...
+
+    # Compilación con la pérdida detectada
     modelo_kdm.compile(
         optimizer=keras.optimizers.Adam(learning_rate=config['lr']),
-        loss='sparse_categorical_crossentropy', 
+        loss=loss_function, # <--- Cambio dinámico
         metrics=['accuracy']
     )
 
-    # 4. Inicialización con muestras reales
+    # Inicialización (KDM siempre requiere One-Hot aquí)
     modelo_kdm.init_components(x_train_fold[:config['n_comp']], 
-                               y_train_onehot[:config['n_comp']], 
+                               y_train_to_init[:config['n_comp']], 
                                init_sigma=True)
     
     total_params = np.sum([keras.backend.count_params(w) for w in modelo_kdm.trainable_weights])
