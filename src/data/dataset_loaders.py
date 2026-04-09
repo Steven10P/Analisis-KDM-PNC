@@ -58,3 +58,35 @@ class PNCDataPipelineKFold:
     def get_test_loader(self):
         """Genera el iterador para evaluación final."""
         return DataLoader(self.test_set_full, batch_size=self.batch_size, shuffle=False)
+
+# ==========================================
+# NUEVA CLASE PARA FASHION-MNIST
+# ==========================================
+
+class FashionPNCDataPipelineKFold:
+    def __init__(self, batch_size=128, data_dir='./data_fashion'):
+        self.batch_size = batch_size
+        
+        # Mantenemos SOLO ToTensor() para no romper el escalado (data * 255.0).long()
+        self.transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+
+        self.class_names = [
+            'T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+            'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot'
+        ]
+
+        print("Cargando datasets Fashion-MNIST...")
+        self.train_set_full = datasets.FashionMNIST(data_dir, train=True, download=True, transform=self.transform)
+        self.test_set_full = datasets.FashionMNIST(data_dir, train=False, download=True, transform=self.transform)
+
+    def get_fold_loaders(self, train_idx, val_idx):
+        train_sub = Subset(self.train_set_full, train_idx)
+        val_sub = Subset(self.train_set_full, val_idx)
+        train_loader = DataLoader(train_sub, batch_size=self.batch_size, shuffle=True)
+        val_loader = DataLoader(val_sub, batch_size=self.batch_size, shuffle=False)
+        return train_loader, val_loader
+
+    def get_test_loader(self):
+        return DataLoader(self.test_set_full, batch_size=self.batch_size, shuffle=False)
