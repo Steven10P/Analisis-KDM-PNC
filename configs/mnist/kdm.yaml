@@ -4,12 +4,14 @@ dataset: 'mnist'
 arquitectura:
   input_dim: 784
   n_classes: 10
+  sigma: 0.5
+  sigma_trainable: True
 
 grid_search:
   param_grid:
-    units_dense: [64, 128]
-    learning_rate: [0.01, 0.001]
-    batch_size: [32, 64]
+    n_comp: [256, 512]
+    encoded_size: [64, 128]
+    lr: [0.001, 0.0005]  # Equivalente a 1e-3 y 5e-4
   cv_folds: 3
 
 entrenamiento_final:
