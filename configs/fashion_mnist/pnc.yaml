@@ -1,15 +1,16 @@
-# Archivo: config/pnc.yaml
+# Archivo: config/pnc_fashion.yaml
 
 # Parámetros fijos de la arquitectura y el dataset
 fixed_params:
-  height: 28
-  width: 28
-  n_classes: 10
+  height: 28        # Cambia dinámicamente según el dataset
+  width: 28         # Cambia dinámicamente según el dataset
+  n_classes: 10     # 10 para Fashion/MNIST, 100 para CIFAR-100, etc.
   mixing: 'sum'
   batch_size: 128
+  optimizer: 'adam' # <--- DINÁMICO: Puede ser 'adam' o 'sgd'
 
 # Cuadrícula de búsqueda (Grid Search)
 grid_search:
-  components: [5, 10, 15]
-  lr: [0.01, 0.005]
-  momentum: [0.9, 0.5]
+  components: [5, 10]
+  lr: [0.001, 0.005] # LR típico para Adam
+  # momentum: [0.9]  # Descomenta y agrega a grid_search si usas optimizer: 'sgd'
