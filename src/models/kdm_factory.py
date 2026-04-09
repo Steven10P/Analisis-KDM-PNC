@@ -1,47 +1,47 @@
+# Archivo: src/models/kdm_factory.py
+import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers
+from tensorflow import keras
+from tensorflow.keras import layers, Sequential
+from kdm.models.kdm_class_model import KDMClassModel
 
-def build_kdm(config):
+def build_kdm_model(config, x_train_fold, y_train_fold, input_shape=(784,), num_classes=10):
     """
-    Fábrica para construir y compilar el Kernel Density Model (KDM) real.
+    Construye e inicializa un Kernel Density Matrix Classification Model.
     """
-    print(f"[*] Construyendo KDM REAL (TensorFlow) para {config['dataset'].upper()}...")
-    
-    # 1. Leer hiperparámetros desde el YAML (config)
-    input_dim = config['arquitectura']['input_dim']
-    n_classes = config['arquitectura']['n_classes']
-    sigma = config['arquitectura'].get('sigma', 0.5)
-    
-    n_comp = config.get('n_comp', 256)
-    encoded_size = config.get('encoded_size', 64)
-    lr = config['entrenamiento'].get('learning_rate', 0.001)
-
-    # 2. Importar la clase real desde el repositorio clonado
-    try:
-        from kdm.models.kdm_class_model import KDMClassModel
-    except ImportError as e:
-        raise ImportError(f"No se encontró la librería 'kdm'. Asegúrate de haberla instalado. Detalle: {e}")
-
-    # 3. Construir el Encoder (Típicamente necesario para el KDMClassModel)
-    encoder = tf.keras.Sequential([
-        layers.InputLayer(input_shape=(input_dim,)),
-        layers.Dense(encoded_size, activation='relu')
+    # 1. Definición del Encoder Subyacente
+    encoder = Sequential([
+        layers.Input(shape=input_shape),
+        layers.Dense(256, activation='relu'),
+        layers.Dense(config['encoded_size'], activation='relu')
     ], name="kdm_encoder")
 
-    # 4. Instanciar el Modelo KDM Real
-    model = KDMClassModel(
-        n_comp=n_comp,
+    # 2. Instanciación del KDM
+    modelo_kdm = KDMClassModel(
+        encoded_size=config['encoded_size'],
+        dim_y=num_classes,
         encoder=encoder,
-        num_classes=n_classes,
-        sigma=sigma
+        n_comp=config['n_comp'],
+        sigma=0.5, # Idealmente, esto también debería ser un hiperparámetro
+        sigma_trainable=True
     )
-    
-    # 5. Compilación
-    optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
-    model.compile(
-        optimizer=optimizer,
-        loss='sparse_categorical_crossentropy',
+
+    # Nota Teórica: En clasificación, Sparse Categorical Crossentropy es equivalente
+    # al Negative Log-Likelihood (NLL) del modelo condicional P(Y|X).
+    modelo_kdm.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=config['lr']),
+        loss='sparse_categorical_crossentropy', 
         metrics=['accuracy']
     )
+
+    # 3. Inicialización de Componentes (Requisito estricto de KDM)
+    samples_x = x_train_fold[:config['n_comp']]
+    samples_y_sparse = y_train_fold[:config['n_comp']]
+    samples_y_onehot = keras.utils.to_categorical(samples_y_sparse, num_classes=num_classes)
+
+    modelo_kdm.init_components(samples_x, samples_y_onehot, init_sigma=True)
     
-    return model
+    # 4. Cálculo de Parámetros
+    total_params = np.sum([keras.backend.count_params(w) for w in modelo_kdm.trainable_weights])
+
+    return modelo_kdm, total_params
