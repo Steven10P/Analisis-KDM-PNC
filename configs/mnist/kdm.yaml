@@ -4,14 +4,14 @@ dataset: 'mnist'
 arquitectura:
   input_dim: 784
   n_classes: 10
-  sigma: 0.5
   sigma_trainable: True
 
 grid_search:
   param_grid:
     n_comp: [256, 512]
     encoded_size: [64, 128]
-    lr: [0.001, 0.0005]  # Equivalente a 1e-3 y 5e-4
+    lr: [0.001, 0.0005]
+    sigma: [0.1, 0.5, 1.0]  # <--- NUEVO: Variación de sigma
   cv_folds: 3
 
 entrenamiento_final:
