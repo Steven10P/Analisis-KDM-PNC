@@ -4,41 +4,34 @@ import torch.optim as optim
 
 def build_pnc(config, device):
     """
-    Fábrica para instanciar el Probabilistic Neural Circuit (PNC).
+    Fábrica para instanciar el Probabilistic Neural Circuit (PNC) de Zuidberg.
     """
-    print(f"[*] Construyendo PNC (PyTorch) para {config['dataset'].upper()}...")
+    print(f"[*] Construyendo PNC real (PyTorch) para {config['dataset'].upper()}...")
     
     # Extraer dimensiones espaciales y arquitectónicas
     h = config['arquitectura']['height']
     w = config['arquitectura']['width']
     n_classes = config['arquitectura']['n_classes']
     components = config['arquitectura'].get('components', 10)
+    mixing = config['arquitectura'].get('mixing', 'sum')
     
     # Hiperparámetros de optimización
     lr = config['entrenamiento'].get('lr', 0.01)
     momentum = config['entrenamiento'].get('momentum', 0.9)
 
-    # Instanciación del Modelo
-    # Se intentará importar tu clase GenDisPNCRC
+    # Importamos desde la librería clonada de Zuidberg
     try:
-        from .pnc_core import GenDisPNCRC
+        from circuits.pncrc import GenDisPNCRC
         model = GenDisPNCRC(
             height=h, 
             width=w, 
+            components=components,
             n_classes=n_classes, 
-            num_components=components
-        )
-    except ImportError:
-        print("[!] Advertencia: No se encontró 'pnc_core.py'. Usando un modelo dummy de PyTorch.")
-        # Dummy model solo para que el código no se rompa si aún no subes tu clase
-        model = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(h * w, components),
-            nn.ReLU(),
-            nn.Linear(components, n_classes)
-        )
+            mixing=mixing
+        ).to(device)
+    except ImportError as e:
+        raise ImportError(f"No se encontró la librería 'circuits'. Asegúrate de haber clonado ProbabilisticNeuralCircuits. Detalle: {e}")
         
-    model = model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
     
