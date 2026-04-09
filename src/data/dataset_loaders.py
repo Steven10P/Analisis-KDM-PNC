@@ -207,36 +207,24 @@ class SVHNPNCDataPipelineKFold:
     def __init__(self, batch_size=128, data_dir='./data/svhn'):
         self.batch_size = batch_size
         
-        # Mantenemos SOLO ToTensor() para que la transformación a discretos
-        # (data * 255.0).long() siga funcionando en el bucle de entrenamiento
+        # [SOLUCIÓN CRÍTICA]: Convertir a Escala de Grises (1 canal)
         self.transform = transforms.Compose([
+            transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor()
         ])
 
-        # Las clases de SVHN son los dígitos del 0 al 9
         self.class_names = [str(i) for i in range(10)]
 
-        print("Cargando datasets SVHN para PNC...")
-        
-        # [CAMBIO CRÍTICO]: SVHN usa el parámetro 'split' en lugar de 'train'
+        print("Cargando datasets SVHN (Escala de Grises) para PNC...")
         self.train_set_full = datasets.SVHN(
-            root=data_dir, 
-            split='train', 
-            download=True, 
-            transform=self.transform
-        )
+            root=data_dir, split='train', download=True, transform=self.transform)
         
         self.test_set_full = datasets.SVHN(
-            root=data_dir, 
-            split='test', 
-            download=True, 
-            transform=self.transform
-        )
+            root=data_dir, split='test', download=True, transform=self.transform)
 
     def get_fold_loaders(self, train_idx, val_idx):
         train_sub = Subset(self.train_set_full, train_idx)
         val_sub = Subset(self.train_set_full, val_idx)
-        # Los DataLoaders se encargan de empaquetar en [Batch, Channels, Height, Width]
         train_loader = DataLoader(train_sub, batch_size=self.batch_size, shuffle=True)
         val_loader = DataLoader(val_sub, batch_size=self.batch_size, shuffle=False)
         return train_loader, val_loader
