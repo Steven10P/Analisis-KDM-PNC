@@ -1,0 +1,22 @@
+# Core ML
+torch>=2.0
+torchvision>=0.15
+scikit-learn>=1.4
+numpy>=1.26
+
+# MLOps
+mlflow>=2.13
+
+# Visualization
+matplotlib>=3.8
+seaborn>=0.13
+
+# PNC dependency
+einops>=0.7
+
+# Utils
+pyyaml>=6.0
+pandas>=2.2
+
+# KDM (install editable from models/kdm_models)
+# pip install -e models/kdm_models
