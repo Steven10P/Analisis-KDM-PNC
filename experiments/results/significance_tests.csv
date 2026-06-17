@@ -1,0 +1,4 @@
+Dataset,Normality_KDM_p,Normality_PNC_p,Test_Used,Statistic,p_value,Significant,Note
+MNIST,0.4957,0.5778,Student t-test (two-sided),5.8656,0.0,YES (α=0.05),
+Fashion-MNIST,0.1001,0.1405,Student t-test (two-sided),0.8965,0.3818,NO,
+MNIST-noise-σ1,,,N/A,,,,PNC degenerate (NaN loss) — significance test not applicable.
