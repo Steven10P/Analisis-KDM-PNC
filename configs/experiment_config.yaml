@@ -1,0 +1,44 @@
+# Configuracion del experimento KDM vs NPC
+# Dataset: mnist_dim_3_min_3_noise_1 (MNIST -> PCA(3) + N(0,1))
+
+experiment:
+  name: "kdm-pnc-mnist-noise-final"
+  seed: 42
+
+dataset:
+  path: "data/mnist_dim_3_min_3_noise_1-dataset.tar"
+  pca_dim: 3
+  noise_std: 1.0
+
+preprocessing:
+  # Estandarizacion Z-score sobre el conjunto de entrenamiento
+  # Hace el espacio latente comparable entre modelos
+  method: "zscore"
+  fit_on: "train"
+
+kdm:
+  encoded_size: 32
+  n_comp: 256
+  sigma: 0.5          # se recalcula con init_sigma=True
+  sigma_trainable: true
+  encoder_hidden: 64  # MLP: in(3) -> hidden(64) -> encoded(32)
+  lr: 0.001
+  epochs: 50
+  batch_size: 256
+
+pnc:
+  components: 5
+  lr: 0.01
+  momentum: 0.9
+  mixing: "sum"
+  epochs: 50
+  batch_size: 256
+
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"
+  experiment_name: "kdm-pnc-mnist-noise-final"
+
+output:
+  checkpoints_dir: "checkpoints/"
+  plots_dir: "experiments/plots/"
+  report_path: "experiments/statistical_report.md"
