@@ -78,7 +78,7 @@ print(f"[device] {DEVICE}")
 
 def _build_tar(path: Path) -> None:
     """Carga MNIST completo, aplica PCA(3) + ruido N(0,1) y guarda en tar."""
-    print("[data] Generando mnist_dim_3_min_3_noise_1-dataset.tar …")
+    print("[data] Generando mnist_dim_3_min_3_noise_1-dataset.tar ...")
     mnist = fetch_openml("mnist_784", version=1, data_home=str(DATA_DIR),
                          as_frame=False, parser="auto")
     X_raw  = mnist.data.astype(np.float32) / 255.0   # (70000, 784)
@@ -117,7 +117,7 @@ def load_dataset(path: Path):
     """Extrae el .tar y retorna (X_tr, y_tr, X_te, y_te) en numpy."""
     if not path.exists():
         _build_tar(path)
-    print(f"[data] Cargando {path.name} …")
+    print(f"[data] Cargando {path.name} ...")
     with tarfile.open(path, "r") as tf:
         def _arr(name):
             f = tf.extractfile(name)
@@ -262,7 +262,7 @@ def train_pnc(model, tr_loader, te_loader):
         tl, tc, tn = 0.0, 0, 0
         for xb, yb in tr_loader:
             xb, yb = xb.to(DEVICE), yb.to(DEVICE)
-            logits = model(xb.squeeze(1).float())     # (B, H, W) → (B, n_classes)
+            logits = model(xb.float())     # (B, H, W) → (B, n_classes)
             loss   = crit(logits, yb)
             opt.zero_grad(); loss.backward(); opt.step()
             tl += loss.item() * len(yb)
@@ -275,7 +275,7 @@ def train_pnc(model, tr_loader, te_loader):
         with torch.no_grad():
             for xb, yb in te_loader:
                 xb, yb = xb.to(DEVICE), yb.to(DEVICE)
-                logits = model(xb.squeeze(1).float())
+                logits = model(xb.float())
                 loss   = crit(logits, yb)
                 vl += loss.item() * len(yb)
                 vc += (logits.argmax(1) == yb).sum().item()
@@ -319,7 +319,7 @@ def predict_pnc(model, loader):
     preds, truths = [], []
     for xb, yb in loader:
         xb = xb.to(DEVICE)
-        logits = model(xb.squeeze(1).float())
+        logits = model(xb.float())
         preds.extend(logits.argmax(1).cpu().tolist())
         truths.extend(yb.tolist())
     return np.array(truths), np.array(preds)
@@ -435,9 +435,9 @@ def main():
         })
 
         # ── KDM ─────────────────────────────────────────────────────────────
-        print("\n" + "═" * 60)
+        print("\n" + "=" * 60)
         print("  ENTRENANDO KDM")
-        print("═" * 60)
+        print("=" * 60)
         kdm = build_kdm()
         init_kdm(kdm, X_tr, y_tr)
         kdm_hist = train_kdm(kdm, tr_kdm, te_kdm)
@@ -453,9 +453,9 @@ def main():
         })
 
         # ── PNC ─────────────────────────────────────────────────────────────
-        print("\n" + "═" * 60)
+        print("\n" + "=" * 60)
         print("  ENTRENANDO PNC")
-        print("═" * 60)
+        print("=" * 60)
         pnc = build_pnc()
         pnc_hist = train_pnc(pnc, tr_pnc, te_pnc)
 
@@ -470,7 +470,7 @@ def main():
         })
 
         # ── Visualizaciones ─────────────────────────────────────────────────
-        print("\n[plots] Generando gráficas …")
+        print("\n[plots] Generando graficas ...")
         loglog_path = plot_loglog_loss(kdm_hist, pnc_hist)
         cm_paths    = save_conf_matrices(
             kdm_tr_pred, kdm_te_pred,
@@ -487,9 +487,9 @@ def main():
         run_id = mlflow.active_run().info.run_id
 
     # ── Resumen ──────────────────────────────────────────────────────────────
-    print("\n" + "═" * 60)
+    print("\n" + "=" * 60)
     print("  RESULTADOS FINALES")
-    print("═" * 60)
+    print("=" * 60)
     print(f"  KDM  train_acc = {accuracy_score(*kdm_tr_pred):.4f}  "
           f"test_acc = {accuracy_score(*kdm_te_pred):.4f}")
     print(f"  PNC  train_acc = {accuracy_score(*pnc_tr_pred):.4f}  "
@@ -497,7 +497,7 @@ def main():
     print(f"\n  MLflow run_id : {run_id}")
     print(f"  Figuras       : {FIG_DIR}")
     print(f"  Modelos       : {MDL_DIR}")
-    print("═" * 60)
+    print("=" * 60)
 
     print("\n[KDM] Classification report (test):")
     print(classification_report(*kdm_te_pred, target_names=LABELS))
